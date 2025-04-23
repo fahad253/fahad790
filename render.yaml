@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: real-estate-collector
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /
