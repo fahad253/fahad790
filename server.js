@@ -16,6 +16,60 @@ let lastCollectionTime = 0;
 
 const SESSION_PATH = path.join(__dirname, '.wwebjs_auth', 'session', 'Default');
 
+// لعرض ملفات الواجهة مثل client.html والصور و CSS و JS
+app.use(express.static(path.join(__dirname)));
+
+// عرض الصفحة الرئيسية
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client.html'));
+});
+
+// مثال: API تعرض كود QR عند الطلب
+app.get('/qr', (req, res) => {
+  if (qrData) {
+    res.send(`<img src="${qrData}">`);
+  } else {
+    res.send('لا يوجد كود QR حالياً');
+  }
+});
+
+// إعداد واتساب
+client = new Client({
+  authStrategy: new LocalAuth(),
+  puppeteer: {
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  }
+});
+
+client.on('qr', async (qr) => {
+  qrData = await qrcode.toDataURL(qr);
+  console.log('QR RECEIVED');
+});
+
+client.on('ready', () => {
+  isConnected = true;
+  console.log('Client is ready!');
+});
+
+client.on('message', async msg => {
+  const keywords = ['بيع', 'شراء', 'ايجار', 'استثمار', 'ارض', 'شقة', 'عقار'];
+  if (keywords.some(word => msg.body.includes(word))) {
+    realEstateMessages.push({
+      from: msg.from,
+      message: msg.body,
+      date: new Date()
+    });
+  }
+});
+
+client.initialize();
+
+// تشغيل السيرفر
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+
 // النص المحسّن: تحسين الكلمات المفتاحية وتخزينها في مجموعات أكثر تنظيماً
 const keywords = {
   propertyTypes: ['عقار', 'عقارات', 'شقة', 'شقق', 'فيلا', 'فلل', 'ارض', 'أرض', 'عمارة', 'محل', 'مزرعة', 'مخطط', 'استراحة', 'قصر'],
