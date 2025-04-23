@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام جمع العقارات من واتساب</title>
+  <style>
+    :root {
+      --primary-color: #00aa00;
+      --primary-hover: #00cc00;
+      --dark-bg: #121212;
+      --card-bg: #1e1e1e;
+      --border-color: #444;
+      --text-light: #ffffff;
+      --text-muted: #cccccc;
+      --success: #00ff00;
+      --danger: #ff3333;
+      --warning: #ffcc00;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: var(--dark-bg);
+      color: var(--text-light);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      direction: rtl;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .logo {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+    
+    h1 {
+      margin: 20px 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .instruction {
+      font-size: 16px;
+      margin: 15px 0;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    
+    .qr-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 340px;
+      margin: 20px 0;
+    }
+    
+    .qr-image {
+      margin: 15px auto;
+      border: 5px solid white;
+      border-radius: 16px;
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(0, 170, 0, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .status-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      background-color: rgba(0, 170, 0, 0.1);
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .status-card.offline {
+      background-color: rgba(255, 51, 51, 0.1);
+      border-left-color: var(--danger);
+    }
+    
+    .countdown {
+      font-size: 18px;
+      margin: 0;
+      color: var(--success);
+      font-weight: bold;
+    }
+    
+    .countdown.offline {
+      color: var(--danger);
+    }
+    
+    .btn-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 150px;
+    }
+    
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: #555;
+    }
+    
+    .btn-secondary:hover {
+      background: #777;
+    }
+    
+    .btn i {
+      margin-left: 8px;
+      font-size: 18px;
+    }
+    
+    table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      font-size: 14px;
+      text-align: right;
+    }
+    
+    th {
+      background-color: #333;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+    }
+    
+    tbody tr:hover {
+      background-color: rgba(255,255,255,0.05);
+    }
+    
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 200px;
+      flex: 1;
+      text-align: center;
+      border-top: 3px solid var(--primary-color);
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: var(--primary-color);
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    .search-box {
+      padding: 12px 15px;
+      width: 100%;
+      background: #333;
+      border: 1px solid var(--border-color);
+      color: white;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .search-box::placeholder {
+      color: #999;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .stats {
+        flex-direction: column;
+      }
+      
+      .table-container {
+        max-height: 300px;
+      }
+      
+      th, td {
+        padding: 8px;
+        font-size: 12px;
+      }
+    }
+    
+    /* تحميل خط Cairo */
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">📊</div>
+    <h1>نظام جمع بيانات العقارات من واتساب</h1>
+    
+    <div class="card">
+      <p class="instruction">
+        قم بمسح رمز QR الظاهر أدناه باستخدام تطبيق واتساب على جوالك من خلال "الأجهزة المرتبطة".
+        <br>بعد الاتصال، سيتم جمع الرسائل المتعلقة بالعقارات تلقائيًا من جميع المحادثات والمجموعات.
+      </p>
+      
+      <div id="status-card" class="status-card offline">
+        <div id="countdown" class="countdown offline">⚠️ غير متصل</div>
+        <div id="refresh-time">آخر تحديث: <span id="last-refresh">الآن</span></div>
+        <div id="qr-container" class="qr-container">
+            <div class="spinner"></div>
+            <p>جاري تحميل رمز QR... الرجاء الانتظار</p>
+          </div>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-label">إجمالي الرسائل</div>
+            <div id="total-messages" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">عمليات البيع</div>
+            <div id="selling-count" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">عمليات الشراء</div>
+            <div id="buying-count" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">عقارات للإيجار</div>
+            <div id="rent-count" class="stat-value">0</div>
+          </div>
+        </div>
+        
+        <div class="btn-container">
+          <button class="btn" onclick="downloadExcel()">
+            <span>تحميل النتائج (Excel)</span>
+            <span>📁</span>
+          </button>
+          <button class="btn btn-secondary" onclick="refreshData()">
+            <span>تحديث البيانات</span>
+            <span>🔄</span>
+          </button>
+        </div>
+        
+        <div class="card">
+          <input type="text" class="search-box" id="searchBox" placeholder="ابحث عن عقارات (اسم المدينة، نوع العقار، السعر، إلخ)..." oninput="filterMessages()">
+          
+          <div class="table-container">
+            <table id="message-table">
+              <thead>
+                <tr>
+                  <th>المرسل</th>
+                  <th>المجموعة</th>
+                  <th>نوع العملية</th>
+                  <th>المدينة</th>
+                  <th>السعر</th>
+                  <th>الرسالة</th>
+                  <th>الوقت</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div class="notification" id="notification"></div>
+      
+      <script>
+        // المتغيرات العامة
+        let messages = [];
+        let connectionInterval = null;
+        let lastUpdateTime = new Date();
+        
+        // تحديث المؤشر الزمني
+        function updateLastRefresh() {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('ar-SA');
+          document.getElementById('last-refresh').textContent = timeStr;
+          lastUpdateTime = now;
+        }
+        
+        // عرض إشعار للمستخدم
+        function showNotification(message, success = true) {
+          const notification = document.getElementById('notification');
+          notification.textContent = message;
+          notification.style.background = success ? 'var(--primary-color)' : 'var(--danger)';
+          notification.classList.add('show');
+          
+          setTimeout(() => {
+            notification.classList.remove('show');
+          }, 3000);
+        }
+        
+        // تحميل رمز QR
+        async function loadQR() {
+          try {
+            const container = document.getElementById('qr-container');
+            container.innerHTML = '<div class="spinner"></div><p>جاري تحميل رمز QR...</p>';
+            
+            const res = await fetch('/qr');
+            const data = await res.json();
+            
+            if (data.qr) {
+              const img = document.createElement('img');
+              img.src = data.qr;
+              img.alt = "رمز QR للاتصال";
+              img.className = "qr-image";
+              container.innerHTML = '';
+              container.appendChild(img);
+            } else {
+              container.innerHTML = '<p>لم يتم توليد رمز QR بعد... سيتم إعادة المحاولة خلال لحظات</p>';
+              setTimeout(loadQR, 3000);
+            }
+          } catch (error) {
+            document.getElementById('qr-container').innerHTML = '<p>تعذر تحميل رمز QR... سيتم إعادة المحاولة لاحقًا</p>';
+            setTimeout(loadQR, 10000);
+          }
+        }
+        
+        // التحقق من حالة الاتصال
+        async function checkConnection() {
+          try {
+            const res = await fetch('/status');
+            const data = await res.json();
+            
+            const statusCard = document.getElementById('status-card');
+            const countdownEl = document.getElementById('countdown');
+            
+            if (data.connected) {
+              statusCard.classList.remove('offline');
+              countdownEl.classList.remove('offline');
+              startCountdown(300); // 5 دقائق للعد التنازلي
+              loadMessages();
+              
+              // إخفاء QR بعد الاتصال
+              document.getElementById('qr-container').innerHTML = '<p>✅ تم الاتصال بنجاح!</p>';
+            } else {
+              statusCard.classList.add('offline');
+              countdownEl.classList.add('offline');
+              countdownEl.textContent = '⚠️ غير متصل';
+              
+              // إعادة تحميل QR إذا لم يكن متصلاً
+              loadQR();
+            }
+            
+            updateLastRefresh();
+          } catch (error) {
+            console.error('خطأ في التحقق من الاتصال:', error);
+          }
+          
+          // إعادة التحقق كل 2 ثانية
+          if (!connectionInterval) {
+            connectionInterval = setInterval(checkConnection, 5000);
+          }
+        }
+        
+        // بدء العد التنازلي
+        function startCountdown(seconds) {
+          const countdownEl = document.getElementById('countdown');
+          
+          clearInterval(window.countdownTimer);
+          window.countdownTimer = setInterval(() => {
+            const min = Math.floor(seconds / 60);
+            const sec = seconds % 60;
+            countdownEl.textContent = `🟢 متصل - سيتم إعادة الاتصال خلال ${min}:${sec < 10 ? '0' + sec : sec}`;
+            seconds--;
+            
+            if (seconds < 0) {
+              clearInterval(window.countdownTimer);
+              countdownEl.textContent = '🔄 جاري إعادة الاتصال...';
+            }
+          }, 1000);
+        }
+        
+        // تحميل الرسائل
+        async function loadMessages() {
+          try {
+            const res = await fetch('/messages');
+            messages = await res.json();
+            
+            renderMessages(messages);
+            updateStatistics(messages);
+            updateLastRefresh();
+          } catch (error) {
+            console.error('خطأ في تحميل الرسائل:', error);
+          }
+        }
+        
+        // عرض الرسائل في الجدول
+        function renderMessages(messages) {
+          const tbody = document.getElementById('table-body');
+          tbody.innerHTML = '';
+          
+          if (messages.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="7" style="text-align: center;">لم يتم العثور على رسائل عقارية حتى الآن</td>';
+            tbody.appendChild(row);
+            return;
+          }
+          
+          messages.forEach(msg => {
+            const row = document.createElement('tr');
+            
+            // تحديد محتوى الرسالة (اقتصاص النص الطويل)
+            const messageText = msg.message.length > 100 ? 
+              msg.message.substring(0, 100) + '...' : msg.message;
+            
+            row.innerHTML = `
+              <td>${msg.sender || 'غير معروف'}</td>
+              <td>${msg.chatName || 'غير معروف'}</td>
+              <td>${msg.type || 'غير محدد'}</td>
+              <td>${msg.city || 'غير محددة'}</td>
+              <td>${msg.price || 'غير محدد'}</td>
+              <td title="${msg.message}">${messageText}</td>
+              <td>${msg.time || 'غير معروف'}</td>
+            `;
+            
+            tbody.appendChild(row);
+          });
+        }
+        
+        // تحديث الإحصائيات
+        function updateStatistics(messages) {
+          document.getElementById('total-messages').textContent = messages.length;
+          
+          const selling = messages.filter(m => m.type === 'بيع').length;
+          const buying = messages.filter(m => m.type === 'شراء').length;
+          const rent = messages.filter(m => m.type === 'إيجار').length;
+          
+          document.getElementById('selling-count').textContent = selling;
+          document.getElementById('buying-count').textContent = buying;
+          document.getElementById('rent-count').textContent = rent;
+        }
+        
+        // تصفية الرسائل حسب البحث
+        function filterMessages() {
+          const searchText = document.getElementById('searchBox').value.toLowerCase();
+          
+          if (!searchText.trim()) {
+            renderMessages(messages);
+            return;
+          }
+          
+          const filtered = messages.filter(msg => {
+            return (
+              (msg.message && msg.message.toLowerCase().includes(searchText)) ||
+              (msg.sender && msg.sender.toLowerCase().includes(searchText)) ||
+              (msg.chatName && msg.chatName.toLowerCase().includes(searchText)) ||
+              (msg.type && msg.type.toLowerCase().includes(searchText)) ||
+              (msg.city && msg.city.toLowerCase().includes(searchText)) ||
+              (msg.price && msg.price.toLowerCase().includes(searchText))
+            );
+          });
+          
+          renderMessages(filtered);
+        }
+        
+        // تنزيل ملف Excel
+        function downloadExcel() {
+          showNotification('جاري تجهيز ملف Excel للتنزيل...');
+          window.location.href = '/download';
+        }
+        
+        // تحديث البيانات يدويًا
+        async function refreshData() {
+          try {
+            showNotification('جاري تحديث البيانات...');
+            
+            // أولاً تشغيل عملية التحديث في الخادم
+            await fetch('/refresh');
+            
+            // ثم انتظار قليلاً قبل تحميل النتائج المحدثة
+            setTimeout(async () => {
+              await loadMessages();
+              showNotification('تم تحديث البيانات بنجاح!');
+            }, 10000);
+          } catch (error) {
+            showNotification('حدث خطأ أثناء تحديث البيانات', false);
+          }
+        }
+        
+        // تشغيل الدوال عند تحميل الصفحة
+        window.onload = function() {
+          loadQR();
+          checkConnection();
+          updateLastRefresh();
+          
+          // تحديث البيانات تلقائيًا كل دقيقة
+          setInterval(loadMessages, 60000);
+        };
+      </script>
+     </body>
+     </html>
